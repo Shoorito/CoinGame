@@ -46,9 +46,16 @@ USING_NS_CC;
 class C_MainScene
 {
 public:
-	C_MainScene()  = default;
-	~C_MainScene() = default;
-public:
+	static C_MainScene* create();
+	static inline C_MainScene* getInstance() { return m_pMyPointer; }
+private:
 	virtual void init();
-    virtual bool SceneMain();
+    virtual bool mainBoard();
+private:
+	static C_MainScene* m_pMyPointer;
+private:
+	C_MainScene() {}
+	virtual ~C_MainScene() {}
+	C_MainScene(C_MainScene&) = delete;
+	C_MainScene operator=(C_MainScene&) = delete;
 };

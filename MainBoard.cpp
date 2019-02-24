@@ -1,29 +1,52 @@
 #include "MainBoard.h"
 
+C_MainScene * C_MainScene::m_pMyPointer = nullptr;
+
+C_MainScene * C_MainScene::create()
+{
+	if (m_pMyPointer)
+	{
+		return nullptr;
+	}
+
+	m_pMyPointer = new(std::nothrow) C_MainScene();
+
+	m_pMyPointer->init();
+	m_pMyPointer->mainBoard();
+
+	return m_pMyPointer;
+}
+
 void C_MainScene::init()
 {
 	
 }
 
-bool C_MainScene::SceneMain()
+bool C_MainScene::mainBoard()
 {
-	if (!C_Scene_Manager::getInstance()->getScene())
+	Scene* pScene(nullptr);
+
+	pScene = C_Scene_Manager::getInstance()->getScene();
+
+	if (!pScene)
 	{
+		CCAssert(pScene == nullptr, "Scene is not Created.");
+
 		return false;
 	}
 
-	C_History_Menu*		pHistory	(nullptr);
-	C_Calculator*		pCalculator (nullptr);
-	C_Trade_Menu*		pTradeMenu	(nullptr);
-	C_ResManagement*	pManager	(nullptr);
-	C_CoinManagement*	pCoinManager(nullptr);
-	C_ItemManagement*	pItemManager(nullptr);
-	C_MainBottom_Menu*	pBottomMenu	(nullptr);
-	C_MainTop_Menu*		pTopMenu	(nullptr);
-	C_MainBody_Menu*	pBodyMenu	(nullptr);
-	C_Share_Management* pShareManager(nullptr);
-	C_Window_Management*pWindowManager(nullptr);
-	C_Player_Management* pPlayerManager(nullptr);
+	C_History_Menu*		 pHistory		(nullptr);
+	C_Calculator*		 pCalculator	(nullptr);
+	C_Trade_Menu*		 pTradeMenu		(nullptr);
+	C_ResManagement*	 pManager		(nullptr);
+	C_CoinManagement*	 pCoinManager	(nullptr);
+	C_ItemManagement*	 pItemManager	(nullptr);
+	C_MainBottom_Menu*	 pBottomMenu	(nullptr);
+	C_MainTop_Menu*		 pTopMenu		(nullptr);
+	C_MainBody_Menu*	 pBodyMenu		(nullptr);
+	C_Share_Management*  pShareManager	(nullptr);
+	C_Window_Management* pWindowManager	(nullptr);
+	C_Player_Management* pPlayerManager	(nullptr);
 
 	pManager		= C_ResManagement::create("ParentFile.txt");
 	pItemManager	= C_ItemManagement::create();

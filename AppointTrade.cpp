@@ -14,7 +14,7 @@ C_Appoint_Trade * C_Appoint_Trade::create()
 {
 	if (m_pMyPointer)
 	{
-		CCAssert(m_pMyPointer != nullptr , UTF8("지정 트레이더 메뉴 포인터는 이미 생성되어 있습니다.").c_str());
+		return nullptr;
 	}
 
 	m_pMyPointer = new(std::nothrow) C_Appoint_Trade();

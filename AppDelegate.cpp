@@ -21,9 +21,7 @@ using namespace cocos2d::experimental;
 using namespace CocosDenshion;
 #endif
 
-USING_NS_CC;
-
-static cocos2d::Size designResolutionSize = cocos2d::Size(540, 960);
+static cocos2d::Size szDesignRes = cocos2d::Size(540.0f, 960.0f);
 
 AppDelegate::AppDelegate()
 {
@@ -52,45 +50,50 @@ bool AppDelegate::applicationDidFinishLaunching()
 {
 	C_MainScene* pGameScene(nullptr);
 	Scene*		 pMainScene(nullptr);
+	Director*	 pDirector(nullptr);
+	GLView*		 pView(nullptr);
+	float		 fWinWidth(0.0f);
+	float		 fWinHeight(0.0f);
 
-    auto director	= Director::getInstance();
-    auto glview		= director->getOpenGLView();
-	pGameScene		= new(std::nothrow) C_MainScene();
+	pDirector	= Director::getInstance();
+	pView		= pDirector->getOpenGLView();
     
-	if(!glview) {
+	fWinWidth  = szDesignRes.width;
+	fWinHeight = szDesignRes.height;
+
+	if(!pView)
+	{
 		#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
-			glview = GLViewImpl::createWithRect("GameEngine", cocos2d::Rect(0, 0, designResolutionSize.width, designResolutionSize.height));
+			pView = GLViewImpl::createWithRect("GameEngine", cocos2d::Rect(0, 0, fWinWidth, fWinHeight));
 		#else
-			glview = GLViewImpl::create("GameEngine");
+			pView = GLViewImpl::create("GameEngine");
 		#endif
-			director->setOpenGLView(glview);
+			pDirector->setOpenGLView(pView);
     }
 
     // turn on display FPS
-    director->setDisplayStats(true);
+	pDirector->setDisplayStats(true);
 
     // set FPS. the default value is 1.0/60 if you don't call this
-    director->setAnimationInterval(1.0f / 60);
+	pDirector->setAnimationInterval(1.0f / 60);
 
     // Set the design resolution
-    glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, ResolutionPolicy::NO_BORDER);
+	pView->setDesignResolutionSize(fWinWidth, fWinHeight, ResolutionPolicy::NO_BORDER);
     
-	// All Used static Keys Initialize
+	// All Used Keys Initialize
 	
-	C_Scene_Manager::create();
 	C_Layer_Management::init();
 	C_Sprite_Management::init();
 	C_ClippingNode_Management::init();
+	C_Scene_Manager::create();
 
 	S_KeyStore::initKey();
 
 	pMainScene = C_Scene_Manager::getInstance()->getScene();
 
-	pGameScene->init();
-	pGameScene->SceneMain();
-
-    // run
-    director->runWithScene(pMainScene);
+	pGameScene = C_MainScene::create();
+    
+	pDirector->runWithScene(pMainScene);
 
     return true;
 }
