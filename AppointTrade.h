@@ -5,6 +5,30 @@
 
 USING_NS_CC;
 
+enum class E_VALUE_PAD
+{
+	E_NONE = 0,
+	E_PAD = 8,
+	E_MAX = 9
+};
+
+enum class E_TRADE_BUTTON
+{
+	E_NONE = 0,
+	E_SET = 1,
+	E_TRADE = 2,
+	E_MAX = 3
+};
+
+enum class E_ERROR
+{
+	E_NONE = 0,
+	E_INPUT_ZERO = 1,
+	E_COST_LACK = 2,
+	E_COIN_LACK = 3,
+	E_MAX = 4
+};
+
 class C_Appoint_Trade
 {
 public:
@@ -42,7 +66,7 @@ private:
 	virtual void callTradeWindow(const int nType);
 	virtual void setTradeValues(const int nType);
 private:
-	Rect* m_arEventArea[2]{};
+	Rect* m_arEventArea[(int)E_TRADE::E_MAX]{};
 private:
 	Label* m_arPriceLab[(int)E_TRADE::E_MAX]{};
 	Label* m_pPlayerMoney;
@@ -56,19 +80,20 @@ private:
 private:
 	EventListener* m_pEvent;
 private:
-	long long int m_arPrice[(int)E_TRADE::E_MAX]{};
+	long long m_arPrice[(int)E_TRADE::E_MAX]{};
 private:
-	double m_arCoinNum[(int)E_TRADE::E_MAX]{};
-	double m_arPriceNum[(int)E_TRADE::E_MAX]{};
+	float m_arCoinNum[(int)E_TRADE::E_MAX]{};
+	float m_arPriceNum[(int)E_TRADE::E_MAX]{};
 private:
 	int m_nCoinType;
 private:
 	float m_fPosBorder;
 private:
 	bool m_isNowPrice;
+	bool m_arError;
 private:
-	void(C_Appoint_Trade::*m_arTradeFunc[2])(const int);
-	void(C_Appoint_Trade::*m_arSetupFunc[8])(const int);
+	void(C_Appoint_Trade::*m_arTradeFunc[(int)E_TRADE::E_MAX])(const int);
+	void(C_Appoint_Trade::*m_arSetupFunc[(int)E_VALUE_PAD::E_MAX])(const int);
 private:
 	static C_Appoint_Trade* m_pMyPointer;
 private:

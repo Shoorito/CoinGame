@@ -21,16 +21,16 @@ void S_KeyStore::initKey()
 	arUseType[(int)E_IMG_TYPE::E_ROUTE]		= "Route";
 
 	arUseCoinName[(int)E_COIN::E_NONE]				= "None";
-	arUseCoinName[(int)E_COIN::E_STANDARD]			= "스탠다드코인(SDC)";
-	arUseCoinName[(int)E_COIN::E_EATERIUM]			= "이터리움(ETR)";
-	arUseCoinName[(int)E_COIN::E_ATOM]				= "아톰(ATM)";
-	arUseCoinName[(int)E_COIN::E_VILLAIN]			= "빌런(VLN)";
-	arUseCoinName[(int)E_COIN::E_STANDARD_PRIME]	= "스탠다드프라임(SDP)";
-	arUseCoinName[(int)E_COIN::E_COMMENT]			= "코멘트(CMT)";
-	arUseCoinName[(int)E_COIN::E_TOUR_CREDIT]		= "투어크레딧(TCD)";
-	arUseCoinName[(int)E_COIN::E_EDIT_CREDIT]		= "에딧크레딧(ECD)";
-	arUseCoinName[(int)E_COIN::E_TYPHOON_TOKEN]		= "타이푼토큰(TPT)";
-	arUseCoinName[(int)E_COIN::E_DISCREET]			= "디시크릿(DSC)";
+	arUseCoinName[(int)E_COIN::E_STANDARD]			= u8"스탠다드코인(SDC)";
+	arUseCoinName[(int)E_COIN::E_EATERIUM]			= u8"이터리움(ETR)";
+	arUseCoinName[(int)E_COIN::E_ATOM]				= u8"아톰(ATM)";
+	arUseCoinName[(int)E_COIN::E_VILLAIN]			= u8"빌런(VLN)";
+	arUseCoinName[(int)E_COIN::E_STANDARD_PRIME]	= u8"스탠다드프라임(SDP)";
+	arUseCoinName[(int)E_COIN::E_COMMENT]			= u8"코멘트(CMT)";
+	arUseCoinName[(int)E_COIN::E_TOUR_CREDIT]		= u8"투어크레딧(TCD)";
+	arUseCoinName[(int)E_COIN::E_EDIT_CREDIT]		= u8"에딧크레딧(ECD)";
+	arUseCoinName[(int)E_COIN::E_TYPHOON_TOKEN]		= u8"타이푼토큰(TPT)";
+	arUseCoinName[(int)E_COIN::E_DISCREET]			= u8"디시크릿(DSC)";
 
 	arUseSubName[(int)E_COIN::E_NONE] = "None";
 	arUseSubName[(int)E_COIN::E_STANDARD] = "STD";

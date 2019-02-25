@@ -34,7 +34,7 @@ public:
 public:
 	virtual inline Layer* getLayer() { return m_pMainLayer; }
 	virtual void setEnabled(const bool bSwitch);
-	virtual void setConnect(double* pConnect, Label* pTargetLab, C_Value_Box* m_pTarget);
+	virtual void setConnect(float* pConnect, Label* pTargetLab, C_Value_Box* m_pTarget);
 private:
 	virtual void init();
 	virtual void mainBoard();
@@ -82,8 +82,8 @@ private:
 private:
 	std::string m_strResult;
 private:
-	double* m_pConnect;
-	double m_dlResult;
+	float* m_pConnect;
+	float m_fResult;
 	int m_nDotPos;
 private:
 	bool m_isDot;

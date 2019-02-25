@@ -31,7 +31,7 @@ void C_Value_Box::init()
 	m_szButtonSize		= Size::ZERO;
 	m_fTextBarLength	= 0.0f;
 	m_fBorderThick		= 0.0f;
-	m_dlMyValue			= 0.0;
+	m_fMyValue			= 0.0;
 	m_nTradeType		= 0;
 	m_strNumber			= "";
 	m_strTail			= "";
@@ -84,11 +84,11 @@ void C_Value_Box::setTail(const std::string & strTail)
 	m_pNumberText->setString(UTF8("0" + m_strTail));
 }
 
-void C_Value_Box::setNumber(const double dlValue)
+void C_Value_Box::setNumber(const float fValue)
 {
-	m_dlMyValue = dlValue;
+	m_fMyValue = fValue;
 
-	m_strNumber = std::to_string(m_dlMyValue);
+	m_strNumber = std::to_string(m_fMyValue);
 
 	m_pNumberText->setString(UTF8(m_strNumber + m_strTail));
 
@@ -258,16 +258,16 @@ void C_Value_Box::addChildItems()
 
 void C_Value_Box::addCount(const int nAdd)
 {
-	if ((m_dlMyValue + m_arAddList[nAdd]) < 0)
+	if ((m_fMyValue + m_arAddList[nAdd]) < 0)
 	{
 		return;
 	}
 
 	C_Appoint_Trade* pTrader(nullptr);
 
-	m_dlMyValue += m_arAddList[nAdd];
+	m_fMyValue += m_arAddList[nAdd];
 
-	m_strNumber = std::to_string(m_dlMyValue);
+	m_strNumber = std::to_string(m_fMyValue);
 
 	m_pNumberText->setString(m_strNumber + UTF8(m_strTail));
 
@@ -283,7 +283,7 @@ void C_Value_Box::callCalculator(const int nNoUsed)
 	pCalc = C_Calculator::getInstance();
 	
 	pCalc->setEnabled(true);
-	pCalc->setConnect(&m_dlMyValue, m_pNumberText, this);
+	pCalc->setConnect(&m_fMyValue, m_pNumberText, this);
 
 	m_pTouchEvent->setEnabled(false);
 }
@@ -298,7 +298,7 @@ void C_Value_Box::releaseCalculator()
 
 	pTrader->updatePrice(m_nTradeType);
 
-	m_strNumber = std::to_string(m_dlMyValue);
+	m_strNumber = std::to_string(m_fMyValue);
 
 	m_pNumberText->setString(m_strNumber + UTF8(m_strTail));
 

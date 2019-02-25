@@ -25,9 +25,9 @@ public:
 	virtual void setPosition(const float fXpos, const float fYpos);
 	virtual void setTrader(const int nType);
 	virtual void setTail(const std::string& strTail);
-	virtual void setNumber(const double dlValue);
+	virtual void setNumber(const float fValue);
 public:
-	virtual inline double getValue() { return m_dlMyValue; }
+	virtual inline float getValue() { return m_fMyValue; }
 	virtual inline Layer* getLayer() { return m_pMyLayer; }
 public:
 	virtual void releaseCalculator();
@@ -62,9 +62,8 @@ private:
 private:
 	float m_fTextBarLength;
 	float m_fBorderThick;
+	float m_fMyValue;
 	float m_arAddList[(int)E_EVENT_TYPE::E_MAX - 1]{};
-public:
-	double m_dlMyValue;
 private:
 	int m_nTradeType;
 private:

@@ -34,7 +34,7 @@ void C_Calculator::init()
 	m_pConnect		 = nullptr;
 	m_recTouchBorder = Rect::ZERO;
 	m_strResult		 = "0";
-	m_dlResult		 = 0.0;
+	m_fResult		 = 0.0;
 	m_nDotPos		 = 0;
 	m_isDot			 = false;
 }
@@ -332,8 +332,8 @@ void C_Calculator::closeMenu(const int nNumber)
 			convertFloat();
 		}
 
-		*m_pConnect = m_dlResult;
-		m_pTextConnect->setString(std::to_string(m_dlResult));
+		*m_pConnect = m_fResult;
+		m_pTextConnect->setString(std::to_string(m_fResult));
 	}
 
 	m_pCallBox->releaseCalculator();
@@ -342,7 +342,7 @@ void C_Calculator::closeMenu(const int nNumber)
 	m_pTextConnect = nullptr;
 	m_pCallBox = nullptr;
 
-	CCLOG(std::to_string(m_dlResult).c_str());
+	CCLOG(std::to_string(m_fResult).c_str());
 }
 
 void C_Calculator::initNumber(const int nNumber)
@@ -350,7 +350,7 @@ void C_Calculator::initNumber(const int nNumber)
 	m_strResult = "0";
 	m_isDot = false;
 	m_nDotPos = 0;
-	m_dlResult = 0.0;
+	m_fResult = 0.0;
 }
 
 void C_Calculator::convertFloat()
@@ -386,7 +386,7 @@ void C_Calculator::convertFloat()
 				}
 			}
 
-			m_dlResult += dlAdder;
+			m_fResult += dlAdder;
 		}
 	}
 }
@@ -433,7 +433,7 @@ void C_Calculator::convertInteger()
 		nMul *= 10;
 	}
 
-	m_dlResult += (double)nResult;
+	m_fResult += (double)nResult;
 }
 
 bool C_Calculator::touchOnBegan(Touch * pTouch, Event * pUnUsedEvent)
@@ -483,7 +483,7 @@ void C_Calculator::setEnabled(const bool bSwitch)
 	m_pTouchEvent->setEnabled(bSwitch);
 }
 
-void C_Calculator::setConnect(double* pConnect, Label* pTargetLab, C_Value_Box* pBox)
+void C_Calculator::setConnect(float* pConnect, Label* pTargetLab, C_Value_Box* pBox)
 {
 	m_pConnect		= pConnect;
 	m_pTextConnect	= pTargetLab;

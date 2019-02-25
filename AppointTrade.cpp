@@ -5,7 +5,6 @@
 #include "Layer_Management.h"
 #include "C_Stand_Trade.h"
 #include "AppointTrade.h"
-#include "Korean_UTF8.h"
 #include "ShareKey.h"
 
 C_Appoint_Trade* C_Appoint_Trade::m_pMyPointer = nullptr;
@@ -28,22 +27,22 @@ C_Appoint_Trade * C_Appoint_Trade::create()
 void C_Appoint_Trade::updatePrice(const int nType)
 {
 	C_Coin* pCoin(nullptr);
-	double dlTradePrice(0.0);
-	double dlTradeCount(0.0);
+	float fTradePrice(0.0f);
+	float fTradeCount(0.0f);
 
 	pCoin = C_CoinManagement::getInstance()->getCoin(m_nCoinType);
 
 	if (m_isNowPrice)	{ m_arPriceNum[nType] = pCoin->getPrice(); }
 	else				{ m_arPriceNum[nType] = m_arValueBox[nType]->getValue(); }
 
-	m_arCoinNum[nType]  = m_arValueBox[(int)nType + 2]->getValue();
+	m_arCoinNum[nType]  = m_arValueBox[nType + 2]->getValue();
 	
-	dlTradePrice = m_arPriceNum[nType];
-	dlTradeCount = m_arCoinNum[nType];
+	fTradePrice = m_arPriceNum[nType];
+	fTradeCount = m_arCoinNum[nType];
 
-	m_arPrice[nType] = (long long int)((int)dlTradePrice * dlTradeCount);
+	m_arPrice[nType] = (long long)(fTradePrice * fTradeCount);
 
-	m_arPriceLab[nType]->setString(std::to_string(m_arPrice[nType]) + UTF8("원"));
+	m_arPriceLab[nType]->setString(std::to_string(m_arPrice[nType]) + u8"원");
 
 	updateInfo();
 }
@@ -59,19 +58,19 @@ void C_Appoint_Trade::tradeCoin(const int nType)
 {
 	int arSwitch[(int)E_TRADE::E_MAX]{ 0, -1, 1 };
 	C_Player_Management* pPlayer(nullptr);
-	long long int nPlayerMoney(0);
-	long long int nTradeMoney(0);
-	double dlPlayerCoin(0.0);
-	C_Coin* pCoin(nullptr);
-	double dlCoinNum(0.0);
+	C_Coin* pCoin				(nullptr);
+	long long nPlayerMoney		(0ll);
+	long long nTradeMoney		(0ll);
+	float fPlayerCoin			(0.0f);
+	float fCoinNum				(0.0f);
 
 	pPlayer = C_Player_Management::getInstance();
-	pCoin = C_CoinManagement::getInstance()->getCoin(m_nCoinType);
+	pCoin	= C_CoinManagement::getInstance()->getCoin(m_nCoinType);
 
-	nTradeMoney  = m_arPrice[nType] * arSwitch[nType];
-	dlCoinNum	 = m_arCoinNum[nType] * -arSwitch[nType];
+	nTradeMoney  = m_arPrice[nType] *	 arSwitch[nType];
+	fCoinNum	 = m_arCoinNum[nType] * -arSwitch[nType];
 	nPlayerMoney = pPlayer->getPlayerMoney();
-	dlPlayerCoin = pPlayer->getPlayerCoin(m_nCoinType);
+	fPlayerCoin  = pPlayer->getPlayerCoin(m_nCoinType);
 
 	if (m_arPriceNum[nType] != pCoin->getPrice())
 	{
@@ -82,7 +81,7 @@ void C_Appoint_Trade::tradeCoin(const int nType)
 		pTrade->addList(m_arPriceNum[nType], m_arCoinNum[nType], m_nCoinType, nType);
 		
 		if (nType == (int)E_TRADE::E_BUY) { nPlayerMoney += nTradeMoney; }
-		else { dlPlayerCoin += dlCoinNum; }
+		else { fPlayerCoin += fCoinNum; }
 	}
 	else
 	{
@@ -92,18 +91,18 @@ void C_Appoint_Trade::tradeCoin(const int nType)
 		}
 		else
 		{
-			long long llRemoveMoney(0);
+			long long nRemoveMoney(0);
 
-			llRemoveMoney = pPlayer->getAvgPrice(m_nCoinType) * dlCoinNum;
+			nRemoveMoney = (long long)(pPlayer->getAvgPrice(m_nCoinType) * fCoinNum);
 
-			pPlayer->setBuyMoney(pPlayer->getBuyMoney(m_nCoinType) - llRemoveMoney, m_nCoinType);
+			pPlayer->setBuyMoney(pPlayer->getBuyMoney(m_nCoinType) - nRemoveMoney, m_nCoinType);
 		}
 
 		nPlayerMoney += nTradeMoney; 
-		dlPlayerCoin += dlCoinNum;
+		fPlayerCoin += fCoinNum;
 	}
 
-	pPlayer->setPlayerCoin(m_nCoinType, dlPlayerCoin);
+	pPlayer->setPlayerCoin(m_nCoinType, fPlayerCoin);
 	pPlayer->setPlayerMoney(nPlayerMoney);
 	pPlayer->updateAnotherInfo(m_nCoinType);
 
@@ -136,8 +135,8 @@ void C_Appoint_Trade::setEnabledNowPrice(const bool isEnabled)
 	{
 		m_arValueBox[(int)E_BOX_TYPE::E_BUY_PRICE]->setNumber(pCoin->getPrice());
 		m_arValueBox[(int)E_BOX_TYPE::E_SELL_PRICE]->setNumber(pCoin->getPrice());
-		m_arValueBox[(int)E_BOX_TYPE::E_BUY_COUNT]->setNumber(0.0);
-		m_arValueBox[(int)E_BOX_TYPE::E_SELL_COUNT]->setNumber(0.0);
+		m_arValueBox[(int)E_BOX_TYPE::E_BUY_COUNT]->setNumber(0.0f);
+		m_arValueBox[(int)E_BOX_TYPE::E_SELL_COUNT]->setNumber(0.0f);
 	}
 	else
 	{
@@ -145,14 +144,14 @@ void C_Appoint_Trade::setEnabledNowPrice(const bool isEnabled)
 		{
 			for (int nBox((int)E_TRADE::E_BUY); nBox < (int)E_TRADE::E_MAX; nBox++)
 			{
-				m_arValueBox[nList * nBox]->setNumber(0.0);
+				m_arValueBox[nList * nBox]->setNumber(0.0f);
 			}
 
 			m_arPriceNum[nList] = 0.0;
 			m_arCoinNum[nList] = 0.0;
 			m_arPrice[nList] = 0;
 
-			m_arPriceLab[nList]->setString("0원");
+			m_arPriceLab[nList]->setString(u8"0원");
 		}
 	}
 
@@ -198,8 +197,8 @@ void C_Appoint_Trade::createLabel()
 {
 	m_pPlayerMoney = Label::createWithBMFont("BMFonts/NotoSansKR_SemiLight_25px.fnt", "0");
 	m_pHoldCoinNum = Label::createWithBMFont("BMFonts/NotoSansKR_SemiLight_25px.fnt", "0");
-	m_arPriceLab[(int)E_TRADE::E_BUY] = Label::createWithBMFont("BMFonts/NotoSansKR_Bold_50px.fnt", UTF8("0원"));
-	m_arPriceLab[(int)E_TRADE::E_SELL] = Label::createWithBMFont("BMFonts/NotoSansKR_Bold_50px.fnt", UTF8("0원"));
+	m_arPriceLab[(int)E_TRADE::E_BUY] = Label::createWithBMFont("BMFonts/NotoSansKR_Bold_50px.fnt", u8"0원");
+	m_arPriceLab[(int)E_TRADE::E_SELL] = Label::createWithBMFont("BMFonts/NotoSansKR_Bold_50px.fnt", u8"0원");
 }
 
 void C_Appoint_Trade::createLayer()
@@ -233,8 +232,8 @@ void C_Appoint_Trade::createTouchEvent()
 
 void C_Appoint_Trade::createRectList()
 {
-	m_arEventArea[0] = new(std::nothrow) Rect[8]{};
-	m_arEventArea[1] = new(std::nothrow) Rect[2]{};
+	m_arEventArea[(int)E_TRADE_BUTTON::E_SET]   = new(std::nothrow) Rect[(int)E_VALUE_PAD::E_MAX]{};
+	m_arEventArea[(int)E_TRADE_BUTTON::E_TRADE] = new(std::nothrow) Rect[(int)E_TRADE::E_MAX]{};
 }
 
 void C_Appoint_Trade::presetRectList()
@@ -244,6 +243,8 @@ void C_Appoint_Trade::presetRectList()
 	float fBasedXpos(0.0f);
 	float fBasedYpos(0.0f);
 	float fXpos(0.0f);
+	Rect* pTradeButton(nullptr);
+	Rect* pSetButton(nullptr);
 
 	fWidth  = 57.5f;
 	fHeight = 30.0f;
@@ -253,15 +254,24 @@ void C_Appoint_Trade::presetRectList()
 
 	fXpos = fBasedXpos;
 
-	for (int nRect(0); nRect < 8; nRect++)
+	for (int nRect((int)E_VALUE_PAD::E_NONE + 1); nRect < (int)E_VALUE_PAD::E_MAX; nRect++)
 	{
-		m_arEventArea[0][nRect] = Rect(fXpos, fBasedYpos, fWidth, fHeight);
+		pTradeButton = &m_arEventArea[(int)E_TRADE_BUTTON::E_SET][nRect];
 
-		fXpos = m_arEventArea[0][nRect].getMaxX() + 10.0f;
+		*pTradeButton = Rect(fXpos, fBasedYpos, fWidth, fHeight);
+
+		fXpos = pTradeButton->getMaxX() + 10.0f;
 	}
 	
-	m_arEventArea[1][0] = Rect(fBasedXpos, 105.0f, 260.0f, 50.0f);
-	m_arEventArea[1][1] = Rect(m_arEventArea[1][0].getMaxX() + 10.0f, 105.0f, 260.0f, 50.0f);
+	pSetButton  = &m_arEventArea[(int)E_TRADE_BUTTON::E_TRADE][(int)E_TRADE::E_BUY];
+
+	*pSetButton = Rect(fBasedXpos, 105.0f, 260.0f, 50.0f);
+
+	fWidth = pSetButton->getMaxX();
+
+	pSetButton  = &m_arEventArea[(int)E_TRADE_BUTTON::E_TRADE][(int)E_TRADE::E_SELL];
+
+	*pSetButton = Rect(fWidth + 10.0f, 105.0f, 260.0f, 50.0f);
 }
 
 void C_Appoint_Trade::presetBorder()
@@ -271,13 +281,13 @@ void C_Appoint_Trade::presetBorder()
 
 void C_Appoint_Trade::presetFuncList()
 {
-	for (int nFunc(0); nFunc < 8; nFunc++)
+	for (int nFunc((int)E_VALUE_PAD::E_NONE + 1); nFunc < (int)E_VALUE_PAD::E_MAX; nFunc++)
 	{
 		m_arSetupFunc[nFunc] = &C_Appoint_Trade::setTradeValues;
 	}
 	
-	m_arTradeFunc[0] = &C_Appoint_Trade::callTradeWindow;
-	m_arTradeFunc[1] = &C_Appoint_Trade::callTradeWindow;
+	m_arTradeFunc[(int)E_TRADE::E_BUY]  = &C_Appoint_Trade::callTradeWindow;
+	m_arTradeFunc[(int)E_TRADE::E_SELL] = &C_Appoint_Trade::callTradeWindow;
 }
 
 void C_Appoint_Trade::updateInfo()
@@ -285,17 +295,21 @@ void C_Appoint_Trade::updateInfo()
 	C_Player_Management* pPlayer(nullptr);
 	std::string strMoneyText("");
 	std::string strCoinText("");
+	std::string strGetMoney("");
+	std::string strGetCoin("");
 
 	pPlayer = C_Player_Management::getInstance();
 
-	strMoneyText = "현재잔액 : " + std::to_string(pPlayer->getPlayerMoney());
+	strGetMoney  = std::to_string(pPlayer->getPlayerMoney());
+	strGetCoin	 = std::to_string(pPlayer->getPlayerCoin(m_nCoinType));
+	strMoneyText = u8"현재잔액 : " + strGetMoney;
 	
 	strCoinText += S_KeyStore::arUseSubName[m_nCoinType];
-	strCoinText += " : ";
-	strCoinText += std::to_string(pPlayer->getPlayerCoin(m_nCoinType));
+	strCoinText += u8" : ";
+	strCoinText += strGetCoin;
 
-	m_pPlayerMoney->setString(UTF8(strMoneyText));
-	m_pHoldCoinNum->setString(UTF8(strCoinText));
+	m_pPlayerMoney->setString(strMoneyText);
+	m_pHoldCoinNum->setString(strCoinText);
 }
 
 void C_Appoint_Trade::presetItemsOption()
@@ -316,10 +330,10 @@ void C_Appoint_Trade::presetItemsOption()
 	m_arValueBox[(int)E_BOX_TYPE::E_SELL_PRICE]->setTrader((int)E_TRADE::E_SELL);
 	m_arValueBox[(int)E_BOX_TYPE::E_SELL_COUNT]->setTrader((int)E_TRADE::E_SELL);
 
-	m_arValueBox[(int)E_BOX_TYPE::E_BUY_PRICE]->setTail("원");
-	m_arValueBox[(int)E_BOX_TYPE::E_BUY_COUNT]->setTail("개");
-	m_arValueBox[(int)E_BOX_TYPE::E_SELL_PRICE]->setTail("원");
-	m_arValueBox[(int)E_BOX_TYPE::E_SELL_COUNT]->setTail("개");
+	m_arValueBox[(int)E_BOX_TYPE::E_BUY_PRICE]->setTail(u8"원");
+	m_arValueBox[(int)E_BOX_TYPE::E_BUY_COUNT]->setTail(u8"개");
+	m_arValueBox[(int)E_BOX_TYPE::E_SELL_PRICE]->setTail(u8"원");
+	m_arValueBox[(int)E_BOX_TYPE::E_SELL_COUNT]->setTail(u8"개");
 
 	m_pBackGround->setScale(0.5f);
 	m_arPriceLab[(int)E_TRADE::E_BUY]->setScaleX(0.5f);
@@ -353,18 +367,19 @@ void C_Appoint_Trade::addChildItem()
 bool C_Appoint_Trade::touchOnBegan(Touch * pTouch, Event * pUnUsedEvent)
 {
 	Vec2 vecTouch(Vec2::ZERO);
+	Rect* pRect(nullptr);
 
 	vecTouch = pTouch->getLocation();
 
-	if (vecTouch.y <= m_fPosBorder)
+	if (vecTouch.y < m_fPosBorder)
 	{
-		for (int nListNum(0); nListNum < 2; nListNum++)
+		for (int nListNum((int)E_TRADE::E_BUY); nListNum < (int)E_TRADE::E_MAX; nListNum++)
 		{
-			if (m_arEventArea[1][nListNum].containsPoint(vecTouch))
+			pRect = &m_arEventArea[(int)E_TRADE_BUTTON::E_TRADE][nListNum];
+
+			if (pRect->containsPoint(vecTouch))
 			{
 				(this->*m_arTradeFunc[nListNum])(nListNum);
-
-				CCLOG(std::to_string(nListNum).c_str());
 
 				return true;
 			}
@@ -372,13 +387,13 @@ bool C_Appoint_Trade::touchOnBegan(Touch * pTouch, Event * pUnUsedEvent)
 	}
 	else
 	{
-		for (int nListNum(0); nListNum < 8; nListNum++)
+		for (int nListNum((int)E_VALUE_PAD::E_NONE + 1); nListNum < (int)E_VALUE_PAD::E_MAX; nListNum++)
 		{
-			if (m_arEventArea[0][nListNum].containsPoint(vecTouch))
+			pRect = &m_arEventArea[(int)E_TRADE_BUTTON::E_SET][nListNum];
+
+			if (pRect->containsPoint(vecTouch))
 			{
 				(this->*m_arSetupFunc[nListNum])(nListNum);
-
-				CCLOG(std::to_string(nListNum).c_str());
 
 				return true;
 			}
@@ -405,54 +420,65 @@ bool C_Appoint_Trade::touchOnMoved(Touch * pTouch, Event * pUnUsedEvent)
 
 void C_Appoint_Trade::callTradeWindow(const int nType)
 {
-	C_Player_Management* pPlayer(nullptr);
 	C_Window_Management* pManager(nullptr);
+	C_Player_Management* pPlayer(nullptr);
 	std::string strTradeInfo("");
+	std::string strSubTitle("");
+	std::string strTitle("");
 
-	pPlayer = C_Player_Management::getInstance();
+	pPlayer  = C_Player_Management::getInstance();
 	pManager = C_Window_Management::getInstance();
 
-	if (m_arPriceNum[nType + 1] == 0 || m_arCoinNum[nType + 1] == 0)
+	if (m_arPriceNum[nType] == 0 || m_arCoinNum[nType] == 0)
 	{
-		pManager->setEnabledWindow(E_WINDOW::E_ONLY_OK, UTF8("입력 사항 중 '0' 값이 있습니다."), UTF8("0값은 포함될 수 없습니다."));
+		strTitle	= u8"입력 사항 중 '0' 값이 있습니다.";
+		strSubTitle = u8"0값은 포함될 수 없습니다.";
+
+		pManager->setEnabledWindow(E_WINDOW::E_ONLY_OK, strTitle, strSubTitle);
 		
 		return;
 	}
 
 	if ((pPlayer->getPlayerMoney() < m_arPrice[nType + 1]) && (nType + 1 == (int)E_TRADE::E_BUY))
 	{
-		pManager->setEnabledWindow(E_WINDOW::E_ONLY_OK, UTF8("잔액이 부족합니다."), UTF8("잔액을 확인하세요."));
+		strTitle	= u8"잔액이 부족합니다.";
+		strSubTitle = u8"잔액을 확인하세요.";
+
+		pManager->setEnabledWindow(E_WINDOW::E_ONLY_OK, strTitle, strSubTitle);
 
 		return;
 	}
 	else if ((pPlayer->getPlayerCoin(m_nCoinType) < m_arCoinNum[nType + 1]) && (nType + 1 == (int)E_TRADE::E_SELL))
 	{
-		pManager->setEnabledWindow(E_WINDOW::E_ONLY_OK, UTF8("코인이 부족합니다."), UTF8("남은 개수를 확인하세요."));
+		strTitle	= u8"코인이 부족합니다.";
+		strSubTitle = u8"남은 개수를 확인하세요.";
+
+		pManager->setEnabledWindow(E_WINDOW::E_ONLY_OK, strTitle, strSubTitle);
 
 		return;
 	}
 
-	if (nType == 0)
+	if (nType == (int)E_TRADE::E_BUY)
 	{
 		strTradeInfo += S_KeyStore::arUseCoinName[m_nCoinType];
 		strTradeInfo += " ";
 		strTradeInfo += std::to_string(m_arValueBox[(int)E_BOX_TYPE::E_BUY_COUNT]->getValue());
-		strTradeInfo += "개를 개당";
-		strTradeInfo += std::to_string((int)m_arPriceNum[nType + 1]);
-		strTradeInfo += "원에 구입합니다.";
+		strTradeInfo += u8"개를 개당";
+		strTradeInfo += std::to_string((int)m_arPriceNum[nType]);
+		strTradeInfo += u8"원에 구입합니다.";
 	}
 	else
 	{
 		strTradeInfo += S_KeyStore::arUseCoinName[m_nCoinType];
 		strTradeInfo += " ";
 		strTradeInfo += std::to_string(m_arValueBox[(int)E_BOX_TYPE::E_SELL_COUNT]->getValue());
-		strTradeInfo += "개를 개당";
-		strTradeInfo += std::to_string((int)m_arPriceNum[nType + 1]);
-		strTradeInfo += "원에 판매합니다.";
+		strTradeInfo += u8"개를 개당";
+		strTradeInfo += std::to_string((int)m_arPriceNum[nType]);
+		strTradeInfo += u8"원에 판매합니다.";
 	}
 
-	pManager->setEnabledWindow(E_WINDOW::E_SELECT, UTF8("아래 내용으로 거래가 됩니다."), UTF8(strTradeInfo));
-	pManager->setEnabledTrade(E_WINDOW::E_SELECT, true, nType + 1);
+	pManager->setEnabledWindow(E_WINDOW::E_SELECT, u8"아래 내용으로 거래가 됩니다.", strTradeInfo);
+	pManager->setEnabledTrade(E_WINDOW::E_SELECT, true, nType);
 }
 
 void C_Appoint_Trade::setTradeValues(const int nType)
@@ -467,7 +493,7 @@ void C_Appoint_Trade::setTradeValues(const int nType)
 
 	if (m_arPriceNum[nCheck] == 0)
 	{
-		pManager->setEnabledWindow(E_WINDOW::E_ONLY_OK, UTF8("가격을 설정하세요."), UTF8(""));
+		pManager->setEnabledWindow(E_WINDOW::E_ONLY_OK, u8"가격을 설정하세요.", "");
 
 		return;
 	}
@@ -480,7 +506,7 @@ void C_Appoint_Trade::setTradeValues(const int nType)
 			{
 				long double dlCount(0.0);
 
-				dlCount = (double)(pPlayer->getPlayerMoney()) / m_arPriceNum[nCheck];
+				dlCount = (float)pPlayer->getPlayerMoney() / m_arPriceNum[nCheck];
 
 				dlCount *= (0.25 * ((double)nList + 1.0));
 
