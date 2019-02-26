@@ -1,4 +1,4 @@
-#include "Body_Management.h"
+﻿#include "Body_Management.h"
 #include "Sprite_Management.h"
 #include "Scene_Manager.h"
 #include "Layer_Management.h"
@@ -12,7 +12,7 @@
 
 C_MainBody_Menu* C_MainBody_Menu::m_pMyPointer = nullptr;
 
-C_MainBody_Menu * C_MainBody_Menu::create()
+C_MainBody_Menu * C_MainBody_Menu::create(const std::string& strRoute)
 {
 	if (m_pMyPointer)
 	{
@@ -20,8 +20,9 @@ C_MainBody_Menu * C_MainBody_Menu::create()
 	}
 
 	m_pMyPointer = new(std::nothrow) C_MainBody_Menu();
-	
+
 	m_pMyPointer->init();
+	m_pMyPointer->setRoute(strRoute);
 	m_pMyPointer->mainBoard();
 
 	return m_pMyPointer;
@@ -29,14 +30,10 @@ C_MainBody_Menu * C_MainBody_Menu::create()
 
 void C_MainBody_Menu::init()
 {
-	m_nSpriteCount		= 0;
-	m_nButtonCount		= 0;
-	m_fNowTouchedYpos	= 0.0f;
-	m_fPastYpos			= 0.0f;
-	m_strFileRoute		= "";
-	m_pBodyLayer		= nullptr;
-	m_pClippingTarget	= nullptr;
-	m_pBodyClipingNode  = nullptr;
+	m_strRoute			= "";
+	m_pMainLayer		= nullptr;
+	m_pBackground		= nullptr;
+	m_pClipingNode		= nullptr;
 	m_recEventBorder	= Rect::ZERO;
 }
 
@@ -47,159 +44,90 @@ bool C_MainBody_Menu::mainBoard()
 		return false;
 	}
 
-	C_ItemManagement* pManager(nullptr);
-
-	pManager = C_ItemManagement::getInstance();
-
-	pManager->setInfoList((int)E_IMG_TYPE::E_SPRITE, (int)E_FILE_TYPE::E_BODY_MENU, m_vecSpritesInfo);
-	pManager->setInfoList((int)E_IMG_TYPE::E_BUTTON, (int)E_FILE_TYPE::E_BODY_MENU, m_vecButtonsInfo);
-
 	createBodyLayer();
-	createUseItems();
-
-	setBodyItemsRoute();
-	setBodyItemsCount();
-
-	presetMenuLayer();
-	presetEventFuncList();
-	presetClippingNode();
-
 	createSpriteItems();
-	createButtonItems();
+	createClippingNode();
+	createMenu();
 
-	pManager->setItemsList(m_vecSpritesInfo, m_vecSpritesList, m_nSpriteCount);
-	pManager->setItemsList(m_vecButtonsInfo, m_vecButtonsList, m_nButtonCount);
+	presetEventFuncList();
+	presetSelectedMenu();
+	presetMenuEnabled();
+	presetItemsPosition();
+	presetItemsScale();
+	presetItemsAnchor();
+	presetItemsVisible();
 
 	addChildScene();
-
-	setPastSelectedMenu();
-	setBodyItemsPosition();
-	setBodyItemsScale();
-	setBodyItemsAnchor();
-	setBodyItemsVisible();
 	
-	presetLayerOption();
 	callSetup();
 
 	return true;
 }
 
-void C_MainBody_Menu::releaseTemp()
-{
-
-}
-
 void C_MainBody_Menu::createBodyLayer()
 {
-	m_pBodyLayer = C_Layer_Management::createLayer(S_KeyStore::strBodyAreaName);
+	m_pMainLayer = C_Layer_Management::createLayer(S_KeyStore::strBodyAreaName);
 }
 
-void C_MainBody_Menu::createUseItems()
+void C_MainBody_Menu::createMenu()
 {
-	m_pActionNode = Node::create();
 	C_News_Management::create();
 	C_Market_Management::create();
+	C_History_Menu::create();
 }
 
 void C_MainBody_Menu::createSpriteItems()
 {
-	for (int nItemNum(0); nItemNum < m_nSpriteCount; nItemNum++)
-	{
-		C_FNode* pNode(nullptr);
-
-		pNode = m_vecSpritesInfo.at(nItemNum);
-
-		C_ItemManagement::getInstance()->createItem(m_strFileRoute, pNode);
-	}
-}
-
-void C_MainBody_Menu::createButtonItems()
-{
-	for (int nItemNum(0); nItemNum < m_nButtonCount; nItemNum++)
-	{
-		C_FNode* pNode(nullptr);
-
-		pNode = m_vecButtonsInfo.at(nItemNum);
-
-		C_ItemManagement::getInstance()->createItem(m_strFileRoute, pNode);
-	}
+	m_pBackground = C_Sprite_Management::createSprite(m_strRoute, "Body_BG", "Body_Background");
 }
 
 void C_MainBody_Menu::addChildScene()
 {
-	m_pBodyLayer->addChild(m_vecSpritesList.at(0));
-	m_pBodyLayer->addChild(m_pActionNode);
-	m_pBodyLayer->addChild(m_arMenuLayer[(int)E_MENU_TYPE::E_NEWS]);
-	m_pBodyLayer->addChild(m_arMenuLayer[(int)E_MENU_TYPE::E_MARKET]);
-	m_pBodyLayer->addChild(m_arMenuLayer[(int)E_MENU_TYPE::E_HISTORY]);
-	m_pBodyLayer->addChild(m_arMenuLayer[(int)E_MENU_TYPE::E_WORLD_NEWS]);
-	m_pBodyLayer->addChild(m_arMenuLayer[(int)E_MENU_TYPE::E_MYPAGE]);
+	Scene* pScene(nullptr);
 
-	m_pBodyClipingNode->addChild(m_pBodyLayer);
+	pScene = C_Scene_Manager::getInstance()->getScene();
+
+	m_pMainLayer->addChild(m_pBackground);
+	m_pMainLayer->addChild(C_News_Management::getInstance()->getNewsLayer());
+	m_pMainLayer->addChild(C_Market_Management::getInstance()->getMarketLayer());
+	m_pMainLayer->addChild(C_History_Menu::getInstance()->getMyLayer());
+
+	m_pClipingNode->addChild(m_pMainLayer);
 	
-	m_arMenuLayer[(int)E_MENU_TYPE::E_MARKET]->addChild(m_vecSpritesList.at(1));
-	
-	C_Scene_Manager::getInstance()->getScene()->addChild(m_pBodyClipingNode);
+	pScene->addChild(m_pClipingNode);
 }
 
-void C_MainBody_Menu::setPastSelectedMenu()
+void C_MainBody_Menu::presetSelectedMenu()
 {
 	m_nPastSelected = S_KeyStore::nMenuKey;
-	m_pPastLayer = m_arMenuLayer[m_nPastSelected];
-	m_pPastFunc  = m_arEventFunc[m_nPastSelected];
+	m_pPastFunc		= m_arEventFunc[m_nPastSelected];
 }
 
-void C_MainBody_Menu::presetLayerOption()
+void C_MainBody_Menu::presetMenuEnabled()
 {
-	m_arMenuLayer[(int)E_MENU_TYPE::E_NEWS]->setVisible(true);
-	m_arMenuLayer[(int)E_MENU_TYPE::E_MARKET]->setVisible(false);
-	m_arMenuLayer[(int)E_MENU_TYPE::E_HISTORY]->setVisible(false);
-	m_arMenuLayer[(int)E_MENU_TYPE::E_WORLD_NEWS]->setVisible(false);
-	m_arMenuLayer[(int)E_MENU_TYPE::E_MYPAGE]->setVisible(false);
-
 	C_News_Management::getInstance()->setEventEnabled(true);
 	C_Market_Management::getInstance()->setEventEnabled(false);
 	C_History_Menu::getInstance()->setEnabled(false);
 }
 
-void C_MainBody_Menu::setBodyItemsCount()
+void C_MainBody_Menu::presetItemsPosition()
 {
-	m_nSpriteCount = m_vecSpritesInfo.size();
-	m_nButtonCount = m_vecButtonsInfo.size();
+	m_pClipingNode->setPosition(270.0f, 522.5f); // ClippingNode 위치가 Node자식들에게도 귀속됨.
+	m_pBackground->setPosition(0.0f, 0.0f);
 }
 
-void C_MainBody_Menu::setBodyItemsRoute()
-{
-	C_ResManagement* pManager(nullptr);
-
-	pManager = C_ResManagement::getInstance();
-
-	m_strFileRoute = pManager->getRoute((int)E_FILE_TYPE::E_BODY_MENU);
-}
-
-void C_MainBody_Menu::setBodyItemsPosition()
-{
-	m_vecSpritesList.at(0)->setPosition(0.0f, 0.0f);
-	m_vecSpritesList.at(1)->setPosition(0.0f, 349.0f);
-
-	m_pBodyClipingNode->setPosition(270.0f, 522.5f);
-}
-
-void C_MainBody_Menu::setBodyItemsScale()
+void C_MainBody_Menu::presetItemsScale()
 {
 
 }
 
-void C_MainBody_Menu::setBodyItemsAnchor()
+void C_MainBody_Menu::presetItemsAnchor()
 {
 }
 
-void C_MainBody_Menu::setBodyItemsVisible()
+void C_MainBody_Menu::presetItemsVisible()
 {
-	for (int nList(0); nList < m_nSpriteCount; nList++)
-	{
-		m_vecSpritesList.at(nList)->setVisible(true);
-	}
+	m_pBackground->setVisible(true);
 }
 
 void C_MainBody_Menu::setNewsEvent(const bool isEnabled)
@@ -225,33 +153,17 @@ void C_MainBody_Menu::setMypageEvent(const bool isEnabled)
 {
 }
 
-void C_MainBody_Menu::presetMenuLayer()
-{
-	m_arMenuLayer[(int)E_MENU_TYPE::E_NONE]			= nullptr;
-	m_arMenuLayer[(int)E_MENU_TYPE::E_NEWS]			= C_News_Management::getInstance()->getNewsLayer();
-	m_arMenuLayer[(int)E_MENU_TYPE::E_MARKET]		= C_Market_Management::getInstance()->getMarketLayer();
-	m_arMenuLayer[(int)E_MENU_TYPE::E_HISTORY]		= C_History_Menu::getInstance()->getMyLayer();
-	m_arMenuLayer[(int)E_MENU_TYPE::E_WORLD_NEWS]	= C_Layer_Management::createLayer("WorldNews_Body_Layer");
-	m_arMenuLayer[(int)E_MENU_TYPE::E_MYPAGE]		= C_Layer_Management::createLayer("Mypage_Body_Layer");
-}
-
-void C_MainBody_Menu::presetClippingNode()
+void C_MainBody_Menu::createClippingNode()
 {
 	Sprite* pSprite(nullptr);
-	std::string strName("");
 
-	strName = m_vecSpritesInfo.at(0)->getName();
+	pSprite = Sprite::createWithSpriteFrame(m_pBackground->getSpriteFrame());
 
-	m_pClippingTarget = C_Sprite_Management::createSprite(m_strFileRoute, strName, "BodyClippingNode");
-
-	m_pClippingTarget->setVisible(true);
-
-	m_pBodyClipingNode = C_ClippingNode_Management::create("BodyLayer_Clipping", m_pClippingTarget);
+	m_pClipingNode = C_ClippingNode_Management::create("Body_Node", pSprite);
 }
 
 void C_MainBody_Menu::presetEventFuncList()
 {
-	m_arEventFunc[(int)E_MENU_TYPE::E_NONE]		  = nullptr;
 	m_arEventFunc[(int)E_MENU_TYPE::E_NEWS]		  = &C_MainBody_Menu::setNewsEvent;
 	m_arEventFunc[(int)E_MENU_TYPE::E_MARKET]	  = &C_MainBody_Menu::setMarketEvent;
 	m_arEventFunc[(int)E_MENU_TYPE::E_HISTORY]	  = &C_MainBody_Menu::setHistoryEvent;
@@ -277,22 +189,19 @@ void C_MainBody_Menu::callSetup()
 	pSequance = Sequence::create(pFunc, pDelay, nullptr);
 	pRepeat = Repeat::create(pSequance, -1);
 
-	m_pActionNode->runAction(pRepeat);
+	m_pMainLayer->runAction(pRepeat);
 }
 
 void C_MainBody_Menu::setupMenuVisible()
 {
 	if (m_nPastSelected != S_KeyStore::nMenuKey)
 	{
-		m_pPastLayer->setVisible(false);
-		(this->*m_pPastFunc)	(false);
+		(this->*m_pPastFunc)(false);
 
 		m_nPastSelected = S_KeyStore::nMenuKey;
 
-		m_pPastLayer = m_arMenuLayer[m_nPastSelected];
 		m_pPastFunc  = m_arEventFunc[m_nPastSelected];
 
-		m_pPastLayer->setVisible(true);
 		(this->*m_pPastFunc)	(true);
 	}
 }
