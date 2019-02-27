@@ -85,7 +85,7 @@ std::string C_FileLoad::getLineText()
 		return "";
 	}
 
-	std::getline(m_fUsedFile, strLineContents, '\n');
+	std::getline(strLineContents, '\n');
 
 	return strLineContents;
 }
