@@ -10,6 +10,32 @@ enum class E_IMG_TYPE
 	E_MAX	 = 5
 };
 
+enum class E_DATA
+{
+	E_NONE = 0,
+	E_FIRST = 1,
+	E_SECOND = 2,
+	E_THIRD = 3,
+	E_MAX = 4
+};
+
+enum class E_PLAYER
+{
+	E_NONE = 0,
+	E_MONEY = 1,
+	E_STD = 2,
+	E_EAT = 3,
+	E_ATM = 4,
+	E_VLN = 5,
+	E_SDP = 6,
+	E_CMT = 7,
+	E_TCD = 8,
+	E_ECD = 9,
+	E_TPT = 10,
+	E_DSC = 11,
+	E_MAX = 12
+};
+
 enum class E_WINDOW_TYPE
 {
 	E_NONE = 0,
@@ -115,15 +141,10 @@ enum class E_TRADE
 
 enum class E_FILE_TYPE
 {
-	E_PARENT = 0,
-	E_BOTTOM_MENU = 1,
-	E_TOP_MENU = 2,
-	E_BODY_MENU = 3,
-	E_SECTION_MENU = 4,
-	E_COIN = 5,
-	E_COIN_OFFSET = 6,
-	E_TRADE = 7,
-	E_MAX = 8
+	E_NONE = 0,
+	E_COIN = 1,
+	E_PLAYER = 2,
+	E_MAX = 3
 };
 
 enum class E_MENU_TYPE

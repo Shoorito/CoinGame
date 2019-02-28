@@ -20,15 +20,6 @@ enum class E_TRADE_BUTTON
 	E_MAX = 3
 };
 
-enum class E_ERROR
-{
-	E_NONE = 0,
-	E_INPUT_ZERO = 1,
-	E_COST_LACK = 2,
-	E_COIN_LACK = 3,
-	E_MAX = 4
-};
-
 class C_Appoint_Trade
 {
 public:
@@ -90,7 +81,6 @@ private:
 	float m_fPosBorder;
 private:
 	bool m_isNowPrice;
-	bool m_arError;
 private:
 	void(C_Appoint_Trade::*m_arTradeFunc[(int)E_TRADE::E_MAX])(const int);
 	void(C_Appoint_Trade::*m_arSetupFunc[(int)E_VALUE_PAD::E_MAX])(const int);
